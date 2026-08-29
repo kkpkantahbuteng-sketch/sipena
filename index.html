@@ -2,39 +2,134 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Apps Script</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aplikasi Surat</title>
     <style>
+        /* Reset total */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        body {
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        
+        /* Container iframe */
+        .iframe-container {
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
+        
         iframe {
             display: block;
             width: 100%;
             height: 100%;
             border: none;
-            /* 🔥 Kunci perbaikan: Atur ukuran iframe agar sesuai */
+            background: white;
+            /* 🔥 Perbaikan utama */
             min-width: 320px;
             min-height: 480px;
         }
-        /* 🔥 Perbaikan untuk layar kecil */
+        
+        /* 🔥 Responsif untuk layar kecil */
         @media (max-width: 768px) {
+            .iframe-container {
+                width: 100vw;
+                height: 100vh;
+            }
+            
             iframe {
                 width: 100vw;
                 height: 100vh;
+                /* Mencegah zoom berlebih */
                 transform: scale(1);
+                transform-origin: top left;
             }
+        }
+        
+        /* 🔥 Untuk layar sangat kecil (HP) */
+        @media (max-width: 480px) {
+            iframe {
+                min-width: unset;
+                min-height: unset;
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+        
+        /* Loading indicator (opsional) */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            color: #666;
+            z-index: 999;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <iframe src="https://script.google.com/macros/s/AKfycbwo09sv01M3LVbOmf23zIxqPzOlEeWOgiO8zbCOIE90Swy-v0janeXQmtN_kIPRAALk/exec"></iframe>
+    <!-- Loading indicator -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Memuat Aplikasi...</div>
+    </div>
+    
+    <!-- 🔥 IFRAME dengan parameter sandbox GABUNGAN -->
+    <div class="iframe-container">
+        <iframe 
+            id="appFrame"
+            src="https://script.google.com/macros/s/AKfycbwo09sv01M3LVbOmf23zIxqPzOlEeWOgiO8zbCOIE90Swy-v0janeXQmtN_kIPRAALk/exec?usegapi=1&sandbox=allow-scripts"
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
+            allow="geolocation; microphone; camera; midi; encrypted-media"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+        ></iframe>
+    </div>
+
+    <script>
+        // 🔥 Sembunyikan loading setelah iframe selesai dimuat
+        document.getElementById('appFrame').addEventListener('load', function() {
+            document.getElementById('loading').style.display = 'none';
+        });
+        
+        // 🔥 Fallback: loading hilang setelah 5 detik
+        setTimeout(function() {
+            document.getElementById('loading').style.display = 'none';
+        }, 5000);
+        
+        // 🔥 Deteksi perubahan ukuran layar untuk refresh viewport iframe
+        window.addEventListener('resize', function() {
+            const iframe = document.getElementById('appFrame');
+            // Trigger reflow untuk refresh tampilan
+            iframe.style.transform = 'scale(0.999)';
+            setTimeout(() => {
+                iframe.style.transform = 'scale(1)';
+            }, 10);
+        });
+    </script>
 </body>
 </html>
